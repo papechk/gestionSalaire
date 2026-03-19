@@ -33,6 +33,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+
     /**
      * The attributes that should be cast.
      *
@@ -43,3 +44,4 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 }
+
