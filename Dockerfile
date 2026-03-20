@@ -1,10 +1,10 @@
 FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libsqlite3-dev \
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libpq-dev \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring exif pcntl bcmath gd \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -28,13 +28,10 @@ RUN cp .env.render .env
 RUN composer dump-autoload --optimize
 RUN npm run build
 
-RUN touch database/database.sqlite \
-    && chown -R www-data:www-data storage bootstrap/cache database
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 RUN php artisan key:generate --force \
-    && php artisan config:clear \
-    && php artisan migrate --force \
-    && php artisan db:seed --force
+    && php artisan config:clear
 
 EXPOSE 80
 CMD ["apache2-foreground"]
